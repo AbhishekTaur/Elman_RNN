@@ -14,13 +14,14 @@ data.resize((seq_length + 1, 1))
 
 def get_data(dtype):
     X = Variable(torch.Tensor(data[:-1]).type(dtype), requires_grad=False)
-    y = Variable(torch.Tensor(data[1:]).type(dtype), requires_grad=False)
+    y = Variable(torch.Tensor(data[1:].ravel()).type(dtype), requires_grad=False)
     return X, y
 
 
 def train(X, y, model):
     epochs = 300
-    criterion = nn.CrossEntropyLoss()
+    # criterion = nn.CrossEntropyLoss()
+    criterion = nn.MSELoss()
 
     for i in range(epochs):
         total_loss = 0
@@ -31,10 +32,10 @@ def train(X, y, model):
             target = y[j:(j + 1)]
 
             (pred, context_state) = model.forward(input, context_state, model.w1, model.w2)
-            print("pred ", pred)
-            print(type(pred))
-            label = target.long()
-            print(type(target))
+            # print("pred ", pred.item())
+            # print(type(pred))
+            label = target
+            # print(type(target))
 
             loss = criterion(pred, label)
             loss.backward()
@@ -46,7 +47,7 @@ def train(X, y, model):
             total_loss += loss.item()
             context_state = Variable(context_state.data)
         if i % 10 == 0:
-            print("Epoch: {} loss {}".format(i, total_loss.data[0]))
+            print("Epoch: {} loss {}".format(i, total_loss))
 
 
 def main():
