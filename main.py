@@ -2,13 +2,13 @@ import torch
 from torch.autograd import Variable
 import numpy as np
 from model import Elman_RNN
-import pylab as pl
+import matplotlib.pyplot as pl
 import torch.nn as nn
 
 lr = 0.1
 seq_length = 20
-data_time_steps = np.linspace(2, 10, seq_length + 1)
-data = np.sin(data_time_steps)
+data_time_steps = np.linspace(2, 100, seq_length + 1)
+data = (np.sin(data_time_steps) * 2 + 1).astype(int)
 data.resize((seq_length + 1, 1))
 
 
@@ -20,8 +20,8 @@ def get_data(dtype):
 
 def train(X, y, model):
     epochs = 300
-    # criterion = nn.CrossEntropyLoss()
-    criterion = nn.MSELoss()
+    criterion = nn.CrossEntropyLoss()
+    # criterion = nn.MSELoss()
 
     for i in range(epochs):
         total_loss = 0
@@ -34,7 +34,7 @@ def train(X, y, model):
             (pred, context_state) = model.forward(input, context_state, model.w1, model.w2)
             # print("pred ", pred.item())
             # print(type(pred))
-            label = target
+            label = target.long()
             # print(type(target))
 
             loss = criterion(pred, label)
@@ -52,7 +52,7 @@ def train(X, y, model):
 
 def main():
     dtype = torch.FloatTensor
-    input_size, hidden_size, output_size = 7, 6, 1
+    input_size, hidden_size, output_size = 7, 6, 3
     model = Elman_RNN(input_size, hidden_size, output_size, dtype)
     X, y = get_data(dtype)
     labels = np.array([1, 2, 3, 4, 5])
